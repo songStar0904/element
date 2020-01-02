@@ -28,7 +28,7 @@
     </span>
     <el-input
       ref="input"
-      :value="displayValue"
+      :value="formatterValue"
       :placeholder="placeholder"
       :disabled="inputNumberDisabled"
       :size="inputNumberSize"
@@ -103,7 +103,9 @@
         validator(val) {
           return val >= 0 && val === parseInt(val, 10);
         }
-      }
+      },
+      formatter: Function,
+      parser: Function
     },
     data() {
       return {
@@ -170,12 +172,25 @@
       inputNumberDisabled() {
         return this.disabled || (this.elForm || {}).disabled;
       },
+      formatterValue() {
+        if (this.formatter && this.displayValue !== null) {
+          return this.formatter(this.displayValue);
+        } else {
+          return this.displayValue;
+        }
+      },
       displayValue() {
         if (this.userInput !== null) {
+          if (this.parser) {
+            this.userInput = this.parser(String(this.userInput));
+          }
           return this.userInput;
         }
 
         let currentValue = this.currentValue;
+        if (this.parser) {
+          currentValue = this.parser(String(currentValue));
+        }
 
         if (typeof currentValue === 'number') {
           if (this.stepStrictly) {
@@ -256,6 +271,9 @@
         this.userInput = value;
       },
       handleInputChange(value) {
+        if (this.parser) {
+          value = this.parser(String(value));
+        }
         const newVal = value === '' ? undefined : Number(value);
         if (!isNaN(newVal) || value === '') {
           this.setCurrentValue(newVal);

@@ -46,6 +46,44 @@
 ```
 :::
 
+### 格式化
+
+:::demo 通过 `formatter` 格式化数字，以展示具有具体含义的数据，往往需要配合 `parser` 一起使用。
+
+```html
+<template>
+  <el-input-number v-model="num1" 
+  :formatter="value => `${fix} ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+  :parser="parser"></el-input-number>
+  
+  <el-input-number v-model="num2"
+  :formatter="value => `${value}%`"
+  :parser="value => value.replace('%', '')"></el-input-number>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        num1: 5,
+        num2: 20,
+        fix: '$'
+      }
+    },
+    computed: {
+      exp(){
+        return new RegExp(`\\${this.fix}\\s?|(,*)`, 'g')
+      }
+    },
+    methods: {
+      parser(value){
+        return value.replace(this.exp, '')
+      }
+    }
+  };
+</script>
+```
+:::
+
 ### 步数
 
 允许定义递增递减的步数控制
